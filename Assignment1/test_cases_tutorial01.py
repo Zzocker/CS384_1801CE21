@@ -1,6 +1,6 @@
 import tutorial01 as A1
 
-actual_answers = [9, 12, 80, 5, 81, [2, 6, 18, 54, 162], [5, 7, 9, 11, 13, 15]]
+actual_answers = [9, 12, 80, 5, 81, [2, 6, 18, 54, 162], [5, 7, 9, 11, 13, 15],[0.2, 0.143, 0.111, 0.091, 0.077, 0.067]]
 student_answers = []
 
 test_case_1 = A1.add(4, 5)
@@ -34,6 +34,9 @@ n = 6  # Nth term to be find
 
 ap = A1.printAP(a,d,n)
 student_answers.append(list(ap))
+
+hp = A1.printHP(a,d,n)
+student_answers.append(list(hp))
 
 print(gp)
 print(actual_answers)

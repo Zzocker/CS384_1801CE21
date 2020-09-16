@@ -52,6 +52,11 @@ def printAP(a, d, n):
 
 # Python 3 program to print HP.   Harmonic Progression
 #You cant use the inbuilt python function. Write your own function
-def printHP(a, d, n): 
+def printHP(a, d, n):
+	if (a == 0):
+		return 0
 	hp=[]
+	for i in range(n):
+		ith = 1/(a+(d*i))
+		hp.append(float("{:.3f}".format(ith)))
 	return hp
