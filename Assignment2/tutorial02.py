@@ -16,3 +16,17 @@ def sorting(first_list):
             j-=1
         sorted_list[j+1]=plug
     return sorted_list
+
+# Function to compute mean
+def mean(first_list):
+    # Validation
+    if len(first_list) == 0:
+        return 0
+    if isinstance(first_list,tuple) != False:
+        return 0
+    for item in first_list:
+        if isinstance(item,str):
+            return 0
+    # Logic
+    mean_value = float("{:.3f}".format(summation(first_list)/len(first_list)))
+    return mean_value
