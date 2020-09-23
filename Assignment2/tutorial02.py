@@ -1,3 +1,5 @@
+import math
+
 # Function to compute sum. You cant use Python functions
 def summation(first_list):
     # sum Logic
@@ -55,3 +57,27 @@ def median(first_list):
         median_value = sorted_list[int(n/2)]
     median_value = float("{:.3f}".format(median_value))
     return median_value
+
+# Function to compute Standard deviation. You cant use Python functions
+def standard_deviation(first_list):
+    # Standard deviation Logic
+        # Validation
+    n = len(first_list)
+    if n == 0:
+        return 0
+    if isinstance(first_list,tuple) != False:
+        return 0
+    for item in first_list:
+        if isinstance(item,str):
+            return 0
+    # Logic
+    list_mean = mean(first_list)
+    temp = first_list[:]
+
+    for i in range(0,len(first_list)):
+        temp[i] = (first_list[i]-list_mean)*(first_list[i]-list_mean)
+    
+    sq_sum = summation(temp)
+
+    standard_deviation_value = float("{:.3f}".format(math.sqrt(sq_sum/n)))
+    return standard_deviation_value
