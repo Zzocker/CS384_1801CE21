@@ -88,3 +88,26 @@ def variance(first_list):
     list_variance = standard_deviation(first_list)
     variance_value = float("{:.3f}".format(list_variance*list_variance))
     return variance_value
+
+# Function to compute RMSE. You cant use Python functions
+def rmse(first_list, second_list):
+    # RMSE Logic
+    # validation 
+    n = len(first_list)
+    if n == 0:
+        return 0
+    if isinstance(first_list,tuple) != False or isinstance(second_list,tuple) != False :
+        return 0
+    if len(first_list) != len(second_list):
+        return 0
+    for i in range(0,n):
+        if isinstance(first_list[i],str) | isinstance(second_list[i],str):
+            return 0
+    
+    # logic
+    temp = first_list[:]
+    for i in range(0,len(first_list)):
+        temp[i] = (first_list[i]-second_list[i])*(first_list[i]-second_list[i])
+    temp_sum = summation(temp)
+    rmse_value = float("{:.3f}".format(math.sqrt(temp_sum/n)))
+    return rmse_value
