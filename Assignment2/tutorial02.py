@@ -140,3 +140,31 @@ def mae(first_list, second_list):
     temp_sum = summation(temp)
     mae_value = float("{:.3f}".format(temp_sum/len(first_list)))
     return mae_value
+
+# Function to compute NSE. You cant use Python functions
+def nse(first_list, second_list):
+    # nse Logic
+    # validation
+    n = len(first_list)
+    if n == 0:
+        return 0
+    if isinstance(first_list,tuple) != False or isinstance(second_list,tuple) != False :
+        return 0
+    if len(first_list) != len(second_list):
+        return 0
+    for i in range(0,n):
+        if isinstance(first_list[i],str) | isinstance(second_list[i],str):
+            return 0
+    
+    first_mean = mean(first_list)
+    numerator = first_list[:]
+    denominator = first_list[:]
+
+    for i in range(0,len(first_list)):
+        numerator[i] = (first_list[i]-second_list[i])*(first_list[i]-second_list[i])
+        denominator[i] = (first_list[i]-first_mean)*(first_list[i]-first_mean)
+    sum_num = summation(numerator)
+    sum_den = summation(denominator)
+
+    nse_value = float("{:.3f}".format(1 - (sum_num/sum_den)))
+    return nse_value
