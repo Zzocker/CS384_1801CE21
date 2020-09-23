@@ -193,3 +193,25 @@ def pcc(first_list, second_list):
     sum_den = (standard_deviation(first_list)*math.sqrt(n))*(standard_deviation(second_list)*math.sqrt(n))
     pcc_value = float("{:.3f}".format(sum_num/sum_den))
     return pcc_value
+
+# Function to compute Skewness. You cant use Python functions
+def skewness(first_list):
+    # Skewness Logic
+    # Validation
+    n = len(first_list)
+    if n == 0:
+        return 0
+    if isinstance(first_list,tuple) != False:
+        return 0
+    for item in first_list:
+        if isinstance(item,str):
+            return 0
+    
+    list_mean = mean(first_list)
+    list_std_dev = standard_deviation(first_list)
+    temp = first_list[:]
+    for i in range(0,n):
+        temp[i] = ((first_list[i]-list_mean)/list_std_dev)*((first_list[i]-list_mean)/list_std_dev)*((first_list[i]-list_mean)/list_std_dev)
+    temp_sum = summation(temp)
+    skewness_value = float("{:.3f}".format(temp_sum/n))
+    return skewness_value
