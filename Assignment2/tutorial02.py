@@ -111,3 +111,9 @@ def rmse(first_list, second_list):
     temp_sum = summation(temp)
     rmse_value = float("{:.3f}".format(math.sqrt(temp_sum/n)))
     return rmse_value
+
+# Function to compute mse. You cant use Python functions
+def mse(first_list, second_list):
+    # mse Logic
+    mse_value = float("{:.3f}".format(rmse(first_list,second_list)*rmse(first_list,second_list)))
+    return mse_value
