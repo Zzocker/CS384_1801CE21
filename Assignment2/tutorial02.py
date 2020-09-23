@@ -117,3 +117,26 @@ def mse(first_list, second_list):
     # mse Logic
     mse_value = float("{:.3f}".format(rmse(first_list,second_list)*rmse(first_list,second_list)))
     return mse_value
+
+# Function to compute mae. You cant use Python functions
+def mae(first_list, second_list):
+    # mae Logic
+    # validation
+    n = len(first_list)
+    if n == 0:
+        return 0
+    if isinstance(first_list,tuple) != False or isinstance(second_list,tuple) != False :
+        return 0
+    if len(first_list) != len(second_list):
+        return 0
+    for i in range(0,n):
+        if isinstance(first_list[i],str) | isinstance(second_list[i],str):
+            return 0
+    
+    # logic
+    temp = first_list[:]
+    for i in range(0,len(first_list)):
+        temp[i] = abs(first_list[i]-second_list[i])
+    temp_sum = summation(temp)
+    mae_value = float("{:.3f}".format(temp_sum/len(first_list)))
+    return mae_value
