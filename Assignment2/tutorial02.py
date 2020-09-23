@@ -30,3 +30,28 @@ def mean(first_list):
     # Logic
     mean_value = float("{:.3f}".format(summation(first_list)/len(first_list)))
     return mean_value
+
+# Function to compute median. You cant use Python functions
+def median(first_list):
+    # Validation
+    n = len(first_list)
+    if n == 0:
+        return 0
+    if isinstance(first_list,tuple) != False:
+        return 0
+    for item in first_list:
+        if isinstance(item,str):
+            return 0
+    # Logic  
+    sorted_list = sorting(first_list)
+    median_value = 0
+    if n % 2 == 0 :
+        mid = n/2
+        if n == 2:
+            median_value = (sorted_list[0]+sorted_list[1])/2
+        else:
+            median_value =  (sorted_list[mid]+sorted_list[mid+1])/2
+    else :
+        median_value = sorted_list[int(n/2)]
+    median_value = float("{:.3f}".format(median_value))
+    return median_value
