@@ -215,3 +215,24 @@ def skewness(first_list):
     temp_sum = summation(temp)
     skewness_value = float("{:.3f}".format(temp_sum/n))
     return skewness_value
+
+# Function to compute Kurtosis. You cant use Python functions
+def kurtosis(first_list):
+    # Kurtosis Logic
+    # Validation
+    n = len(first_list)
+    if n == 0:
+        return 0
+    if isinstance(first_list,tuple) != False:
+        return 0
+    for item in first_list:
+        if isinstance(item,str):
+            return 0
+    list_mean = mean(first_list)
+    list_std_dev = standard_deviation(first_list)
+    temp = first_list[:]
+    for i in range(0,len(first_list)):
+        temp[i] = ((first_list[i]-list_mean)/list_std_dev)*((first_list[i]-list_mean)/list_std_dev)*((first_list[i]-list_mean)/list_std_dev)*((first_list[i]-list_mean)/list_std_dev)
+    temp_sum = summation(temp)
+    kurtosis_value = float("{:.3f}".format(temp_sum/len(first_list)))
+    return kurtosis_value
