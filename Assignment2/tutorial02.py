@@ -81,3 +81,10 @@ def standard_deviation(first_list):
 
     standard_deviation_value = float("{:.3f}".format(math.sqrt(sq_sum/n)))
     return standard_deviation_value
+
+# Function to compute variance. You cant use Python functions
+def variance(first_list):
+    # variance Logic
+    list_variance = standard_deviation(first_list)
+    variance_value = float("{:.3f}".format(list_variance*list_variance))
+    return variance_value
