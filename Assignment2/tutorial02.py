@@ -168,3 +168,28 @@ def nse(first_list, second_list):
 
     nse_value = float("{:.3f}".format(1 - (sum_num/sum_den)))
     return nse_value
+
+# Function to compute Pearson correlation coefficient. You cant use Python functions
+def pcc(first_list, second_list):
+    # nse Logic
+    # validation
+    n = len(first_list)
+    if n == 0:
+        return 0
+    if isinstance(first_list,tuple) != False or isinstance(second_list,tuple) != False :
+        return 0
+    if len(first_list) != len(second_list):
+        return 0
+    for i in range(0,n):
+        if isinstance(first_list[i],str) | isinstance(second_list[i],str):
+            return 0
+    
+    first_mean = mean(first_list)
+    second_mean = mean(second_list)
+    num = first_list[:]
+    for i in range(0,len(first_list)):
+        num[i] = (first_list[i]-first_mean)*(second_list[i]-second_mean)
+    sum_num = summation(num)
+    sum_den = (standard_deviation(first_list)*math.sqrt(n))*(standard_deviation(second_list)*math.sqrt(n))
+    pcc_value = float("{:.3f}".format(sum_num/sum_den))
+    return pcc_value
