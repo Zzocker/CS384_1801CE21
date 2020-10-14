@@ -56,8 +56,22 @@ def country():
                 csv.DictWriter(f,fieldname).writerow(row)
 def email_domain_extract():
     # Read csv and process
-    pass
-
+    base = "analytics/email_domain"
+    if os.path.isdir(base) == False:
+        os.makedirs(base)
+    with open("./studentinfo_cs384.csv","r") as infile:
+        reader = csv.DictReader(infile)
+        fieldname = reader.fieldnames
+        next(reader,None) # skip header
+        for row in reader:
+            email = row.get("email")
+            domain = email.split("@")[1].split(".")[0]
+            filename = "{}/{}.csv".format(base,domain)
+            if os.path.isfile(filename) == False:
+                with open(filename,"w") as f:
+                    csv.DictWriter(f,fieldname).writeheader()
+            with open(filename,"a") as f:
+                csv.DictWriter(f,fieldname).writerow(row)
 
 def gender():
     # Read csv and process
