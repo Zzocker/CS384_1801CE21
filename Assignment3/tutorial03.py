@@ -146,8 +146,18 @@ def state():
 
 def blood_group():
     # Read csv and process
-    pass
-
+    base = "analytics/blood_group"
+    with open("./studentinfo_cs384.csv","r") as infile:
+        reader = csv.DictReader(infile)
+        fieldname = reader.fieldnames
+        next(reader,None) # skip header
+        for row in reader:
+            filename = "{}/{}.csv".format(base,row.get("blood_group").lower())
+            if os.path.isfile(filename) == False:
+                with open(filename,"w") as f:
+                    csv.DictWriter(f,fieldname).writeheader()
+            with open(filename,"a") as f:
+                csv.DictWriter(f,fieldname).writerow(row)
 
 # Create the new file here and also sort it in this function only.
 def new_file_sort():
