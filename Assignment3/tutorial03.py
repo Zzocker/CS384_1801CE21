@@ -96,8 +96,38 @@ def gender():
 
 def dob():
     # Read csv and process
-    pass
-
+    base = "analytics/dob"
+    if os.path.isdir(base) == False:
+        os.makedirs(base)
+    with open("./studentinfo_cs384.csv","r") as infile:
+        reader = csv.DictReader(infile)
+        fieldname = reader.fieldnames
+        next(reader,None)
+        switters = {
+            1 : csv.DictWriter(open("{}/bday_1995_1999.csv".format(base),"w"),fieldname),
+            2 : csv.DictWriter(open("{}/bday_2000_2004.csv".format(base),"w"),fieldname),
+            3 : csv.DictWriter(open("{}/bday_2005_2009.csv".format(base),"w"),fieldname),
+            4 : csv.DictWriter(open("{}/bday_2010_2014.csv".format(base),"w"),fieldname),
+            5 : csv.DictWriter(open("{}/bday_2015_2020.csv".format(base),"w"),fieldname)
+        }
+        for i in range(len(switters)):
+            switters.get(i+1).writeheader()
+        for row in reader:
+            if re.match(re.compile("[0-9]{2}-[0-9]{2}-[0-9]{4}"),row.get("dob")):
+                year = row.get("dob").split("-")[-1]
+                case = -1
+                if 1995 <= int(year) <= 1999:
+                    case = 1
+                elif 2000 <= int(year) <= 2004:
+                    case = 2
+                elif 2005 <= int(year) <= 2009:
+                    case = 3
+                elif 2010 <= int(year) <= 2014:
+                    case = 4
+                elif 2015 <= int(year) <= 2020:
+                    case = 5
+                if case != -1:
+                    switters.get(case).writerow(row)
 
 def state():
     # Read csv and process
