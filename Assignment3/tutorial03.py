@@ -50,7 +50,7 @@ def country():
         for row in reader:
             filename = "{}/{}.csv".format(base,row.get("country").lower())
             if os.path.isfile(filename) == False:
-                with opecn(filename,"w") as f:
+                with open(filename,"w") as f:
                     csv.DictWriter(f,fieldname).writeheader()
             with open(filename,"a") as f:
                 csv.DictWriter(f,fieldname).writerow(row)
@@ -131,8 +131,18 @@ def dob():
 
 def state():
     # Read csv and process
-    pass
-
+    base = "analytics/state"
+    with open("./studentinfo_cs384.csv","r") as infile:
+        reader = csv.DictReader(infile)
+        fieldname = reader.fieldnames
+        next(reader,None) # skip header
+        for row in reader:
+            filename = "{}/{}.csv".format(base,row.get("state").lower())
+            if os.path.isfile(filename) == False:
+                with open(filename,"w") as f:
+                    csv.DictWriter(f,fieldname).writeheader()
+            with open(filename,"a") as f:
+                csv.DictWriter(f,fieldname).writerow(row)
 
 def blood_group():
     # Read csv and process
