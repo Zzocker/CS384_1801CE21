@@ -39,11 +39,21 @@ def course():
             else:
                 with open("{}/misc.csv".format(base),"a") as f:
                     csv.DictWriter(f,fieldname).writerow(row)
-                    
+
 def country():
     # Read csv and process
-    pass
-
+    base = "analytics/country"
+    with open("./studentinfo_cs384.csv","r") as infile:
+        reader = csv.DictReader(infile)
+        fieldname = reader.fieldnames
+        next(reader,None) # skip header
+        for row in reader:
+            filename = "{}/{}.csv".format(base,row.get("country").lower())
+            if os.path.isfile(filename) == False:
+                with opecn(filename,"w") as f:
+                    csv.DictWriter(f,fieldname).writeheader()
+            with open(filename,"a") as f:
+                csv.DictWriter(f,fieldname).writerow(row)
 def email_domain_extract():
     # Read csv and process
     pass
