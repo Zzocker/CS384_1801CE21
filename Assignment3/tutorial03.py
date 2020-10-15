@@ -2,6 +2,14 @@ import csv
 import re
 import os
 
+def del_create_analytics_folder():
+    # del the analytics folder including subfolder
+    # mkdir the analytics folder (only mkdir)
+    if os.name == "posix":
+        os.system("rm -rf analytics")
+    elif os.name == "nt":
+        os.system("rd /s /q analytics")
+    os.makedirs("analytics")
 def course():
     # Read csv and process
     swticher = {
