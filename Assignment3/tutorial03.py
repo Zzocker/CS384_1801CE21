@@ -11,6 +11,29 @@ def course():
         "21" : "phd"
     }
     base = "analytics/course"
+    if os.path.isdir(base) == False:
+        os.makedirs(base)
+    # remove
+    with open("./studentinfo_cs384.csv","r") as infile:
+        pattern = re.compile("[0-9]{4}[a-zA-Z]{2}[0-9]{2}")
+        reader = csv.DictReader(infile)
+        fieldname = reader.fieldnames
+        next(reader,None)
+        for row in reader:
+            if re.match(pattern,row.get("id")):
+                roll_no =row.get("id")
+                year = roll_no[:2]
+                curs = swticher.get(roll_no[2:4])
+                branch = roll_no[4:6].lower()
+                foldername = "{}/{}/{}".format(base,branch,curs)
+                try:
+                    os.makedirs(foldername)
+                except:
+                    pass
+                filename = "{}/{}_{}_{}.csv".format(foldername,year,branch,curs)
+                with open(filename,"w") as f:
+                    csv.DictWriter(f,fieldname).writeheader()
+    
     with open("./studentinfo_cs384.csv","r") as infile:
         pattern = re.compile("[0-9]{4}[a-zA-Z]{2}[0-9]{2}")
         reader = csv.DictReader(infile)
@@ -31,9 +54,6 @@ def course():
                 except:
                     pass
                 filename = "{}/{}_{}_{}.csv".format(foldername,year,branch,curs)
-                if os.path.isfile(filename) == False:
-                    with open(filename,"w") as f:
-                        csv.DictWriter(f,fieldname).writeheader()
                 with open(filename,"a") as f:
                     csv.DictWriter(f,fieldname).writerow(row)
             else:
@@ -43,15 +63,24 @@ def course():
 def country():
     # Read csv and process
     base = "analytics/country"
+    if os.path.isdir(base) == False:
+        os.makedirs(base)    
+    # remove
     with open("./studentinfo_cs384.csv","r") as infile:
         reader = csv.DictReader(infile)
         fieldname = reader.fieldnames
         next(reader,None) # skip header
         for row in reader:
             filename = "{}/{}.csv".format(base,row.get("country").lower())
-            if os.path.isfile(filename) == False:
-                with open(filename,"w") as f:
-                    csv.DictWriter(f,fieldname).writeheader()
+            with open(filename,"w") as f:
+                csv.DictWriter(f,fieldname).writeheader()
+    
+    with open("./studentinfo_cs384.csv","r") as infile:
+        reader = csv.DictReader(infile)
+        fieldname = reader.fieldnames
+        next(reader,None) # skip header
+        for row in reader:
+            filename = "{}/{}.csv".format(base,row.get("country").lower())
             with open(filename,"a") as f:
                 csv.DictWriter(f,fieldname).writerow(row)
 
@@ -60,6 +89,7 @@ def email_domain_extract():
     base = "analytics/email_domain"
     if os.path.isdir(base) == False:
         os.makedirs(base)
+    # Remove
     with open("./studentinfo_cs384.csv","r") as infile:
         reader = csv.DictReader(infile)
         fieldname = reader.fieldnames
@@ -68,9 +98,16 @@ def email_domain_extract():
             email = row.get("email")
             domain = email.split("@")[1].split(".")[0]
             filename = "{}/{}.csv".format(base,domain)
-            if os.path.isfile(filename) == False:
-                with open(filename,"w") as f:
-                    csv.DictWriter(f,fieldname).writeheader()
+            with open(filename,"w") as f:
+                csv.DictWriter(f,fieldname).writeheader()
+    with open("./studentinfo_cs384.csv","r") as infile:
+        reader = csv.DictReader(infile)
+        fieldname = reader.fieldnames
+        next(reader,None) # skip header
+        for row in reader:
+            email = row.get("email")
+            domain = email.split("@")[1].split(".")[0]
+            filename = "{}/{}.csv".format(base,domain)
             with open(filename,"a") as f:
                 csv.DictWriter(f,fieldname).writerow(row)
 
@@ -132,30 +169,46 @@ def dob():
 def state():
     # Read csv and process
     base = "analytics/state"
+    if os.path.isdir(base) == False:
+        os.makedirs(base)
     with open("./studentinfo_cs384.csv","r") as infile:
         reader = csv.DictReader(infile)
         fieldname = reader.fieldnames
         next(reader,None) # skip header
         for row in reader:
             filename = "{}/{}.csv".format(base,row.get("state").lower())
-            if os.path.isfile(filename) == False:
-                with open(filename,"w") as f:
-                    csv.DictWriter(f,fieldname).writeheader()
+            with open(filename,"w") as f:
+                csv.DictWriter(f,fieldname).writeheader() 
+    with open("./studentinfo_cs384.csv","r") as infile:
+        reader = csv.DictReader(infile)
+        fieldname = reader.fieldnames
+        next(reader,None) # skip header
+        for row in reader:
+            filename = "{}/{}.csv".format(base,row.get("state").lower())
             with open(filename,"a") as f:
                 csv.DictWriter(f,fieldname).writerow(row)
 
 def blood_group():
     # Read csv and process
     base = "analytics/blood_group"
+    if os.path.isdir(base) == False:
+        os.makedirs(base)
+    # remove
     with open("./studentinfo_cs384.csv","r") as infile:
         reader = csv.DictReader(infile)
         fieldname = reader.fieldnames
         next(reader,None) # skip header
         for row in reader:
             filename = "{}/{}.csv".format(base,row.get("blood_group").lower())
-            if os.path.isfile(filename) == False:
-                with open(filename,"w") as f:
-                    csv.DictWriter(f,fieldname).writeheader()
+            with open(filename,"w") as f:
+                csv.DictWriter(f,fieldname).writeheader()
+
+    with open("./studentinfo_cs384.csv","r") as infile:
+        reader = csv.DictReader(infile)
+        fieldname = reader.fieldnames
+        next(reader,None) # skip header
+        for row in reader:
+            filename = "{}/{}.csv".format(base,row.get("blood_group").lower())
             with open(filename,"a") as f:
                 csv.DictWriter(f,fieldname).writerow(row)
 
@@ -165,6 +218,8 @@ def new_file_sort():
     new_fieldname = ["id","first_name","last_name","country","email","gender","dob","blood_group","state"]
     new_file_list=  []
     base = "analytics"
+    if os.path.isdir(base) == False:
+        os.makedirs(base)
     with open("./studentinfo_cs384.csv","r") as infile:
         reader = csv.DictReader(infile)
         next(reader,None) # skip header
