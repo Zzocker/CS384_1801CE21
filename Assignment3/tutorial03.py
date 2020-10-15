@@ -162,4 +162,27 @@ def blood_group():
 # Create the new file here and also sort it in this function only.
 def new_file_sort():
     # Read csv and process
-    pass
+    new_fieldname = ["id","first_name","last_name","country","email","gender","dob","blood_group","state"]
+    new_file_list=  []
+    base = "analytics"
+    with open("./studentinfo_cs384.csv","r") as infile:
+        reader = csv.DictReader(infile)
+        next(reader,None) # skip header
+        new_file = open("{}/studentinfo_cs384_names_split.csv".format(base),"w")
+        new_file_writer = csv.DictWriter(new_file,new_fieldname)
+        new_file_writer.writeheader()
+        for row in reader:
+            full_name = row.get("full_name").split(" ")
+            row["first_name"] = full_name[0]
+            row["last_name"] = " ".join(full_name[1:])
+            del row["full_name"]
+            new_file_list.append(row)
+            new_file_writer.writerow(row)
+    def get_first_name(stu):
+        return stu.get("first_name")
+    new_file_list.sort(key=get_first_name)
+    with open("{}/studentinfo_cs384_names_split_sorted_first_name.csv".format(base),"w") as outfile:
+        writer = csv.DictWriter(outfile,new_fieldname)
+        writer.writeheader()
+        for value in new_file_list:
+            writer.writerow(value)
