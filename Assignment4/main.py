@@ -1,5 +1,6 @@
 import csv
 import os
+import student_class as st
 
 def getreader():
     """
@@ -20,3 +21,61 @@ def clean():
         os.remove('{}/{}'.format(base,f))
     if os.path.isfile('misc.csv'):
         os.remove('./misc.csv')
+
+grader = {
+    "AA":  10,
+    "AB":  9,
+    "BB":  8,
+    "BC":  7,
+    "CC":  6,
+    "CD":  5,
+    "DD":  4,
+    "F" :  0,
+    "I" :  0
+}
+
+
+def individual():
+    """
+    1. creates <roll_no>_individual.csv files inside grades folder
+    2. fill those files with contents
+    3. creats student_map (dict type) <roll_no> (Key) > st.Student(value)
+    4. returns student_map
+    """
+    student_map = dict()
+    reader = getreader()
+    base = "./grades"
+    filds = reader.fieldnames
+    mis_writer = csv.DictWriter(open('./misc.csv','w'),filds)
+    mis_writer.writeheader()
+    header = ["Subject","Credits","Type","Grade","Sem"]
+    for row in reader:
+        roll = row.get("roll")
+        ok = True
+        for k in filds:
+            if (k not in ['sl','timestamp','year']) and (row.get(k)=="" or row.get(k)==None):
+                mis_writer.writerow(row)
+                ok=False
+                break
+        if ok:
+            individula_filename = '{}/{}_individual.csv'.format(base,roll)
+            if os.path.isfile(individula_filename) == False:
+                ind_writer =open(individula_filename,"w")
+                ind_writer.write('Roll: {},,,,\n'.format(roll))
+                ind_writer.write('Semester Wise Details,,,,\n')
+                ind_writer.write(','.join(header))
+                ind_writer.write('\n')
+                ind_writer.close()
+            infile = open(individula_filename,"a")
+            writer = csv.DictWriter(infile,header)
+            value = {
+            "Subject" : row.get("sub_code"),
+            "Credits" : row.get("total_credits"),
+            "Type" : row.get("sub_type"),
+            "Grade" : row.get("credit_obtained"),
+            "Sem" : row.get("sem")
+            }
+            writer.writerow(value)
+            infile.close()
+            student_map.setdefault(roll,st.Student()).add_grade(int(row.get("sem")),int(row.get("total_credits")),grader.get(row.get("credit_obtained")))
+    return student_map
