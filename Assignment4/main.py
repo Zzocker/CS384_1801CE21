@@ -107,3 +107,7 @@ def overall(student_map):
             }
             writer.writerow(value)
         infile.close()
+
+if __name__ == "__main__":
+    clean()
+    overall(individual())
