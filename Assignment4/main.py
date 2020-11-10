@@ -79,3 +79,31 @@ def individual():
             infile.close()
             student_map.setdefault(roll,st.Student()).add_grade(int(row.get("sem")),int(row.get("total_credits")),grader.get(row.get("credit_obtained")))
     return student_map
+
+def overall(student_map):
+    """
+    1. creates <roll_no>_overall.csv files inside grades folder
+    2. fill those files with contents
+    """
+    base = "./grades"
+    header = ["Semester","Semester Credits","Semester Credits Cleared","SPI","Total Credits","Total Credits Cleared","CPI"]
+    for roll in student_map:
+        overall_filename = '{}/{}_overall.csv'.format(base,roll)
+        infile = open(overall_filename,"w")
+        infile.write('Roll: {},,,,,,\n'.format(roll))
+        infile.write(','.join(header))
+        infile.write('\n')
+        writer = csv.DictWriter(infile,header)
+        student = student_map.get(roll)
+        for sem in range(1,student.get_current_sem()+1):
+            value = {
+                "Semester" : sem,
+                "Semester Credits" : student.get_sem_total_credits(sem),
+                "Semester Credits Cleared" : student.get_sem_total_credits(sem),
+                "SPI" : '{:.2f}'.format(student.get_spi(sem)),
+                "Total Credits" : student.get_total_credit(sem),
+                "Total Credits Cleared" : student.get_total_credit(sem),
+                "CPI" : '{:.2f}'.format(student.get_cpi(sem))
+            }
+            writer.writerow(value)
+        infile.close()
