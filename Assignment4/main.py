@@ -19,8 +19,8 @@ def clean():
     base = "./grades"
     for f in os.listdir(base):
         os.remove('{}/{}'.format(base,f))
-    if os.path.isfile('misc.csv'):
-        os.remove('./misc.csv')
+    if os.path.isfile('./grades/misc.csv'):
+        os.remove('./grades/misc.csv')
 
 grader = {
     "AA":  10,
@@ -46,7 +46,7 @@ def individual():
     reader = getreader()
     base = "./grades"
     filds = reader.fieldnames
-    mis_writer = csv.DictWriter(open('./misc.csv','w'),filds)
+    mis_writer = csv.DictWriter(open('./grades/misc.csv','w'),filds)
     mis_writer.writeheader()
     header = ["Subject","Credits","Type","Grade","Sem"]
     for row in reader:
