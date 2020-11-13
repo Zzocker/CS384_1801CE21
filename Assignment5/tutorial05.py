@@ -95,5 +95,40 @@ def rename_Suits(folder_name):
     
 
 def rename_How_I_Met_Your_Mother(folder_name):
-    # rename Logic 
+    # rename Logic
+    print("Enter Main Title of the Web Series :")
+    series_name = input()
+    print("Enter Season Number Padding :")
+    season_padding = '0{}'.format(input())
+    print("Enter Episode Number Padding :")
+    episode_padding = '0{}'.format(input())
+    for file_name in os.listdir(folder_name):
+        if re.search(r'^(How I Met Your Mother)',file_name):
+            season = -1
+            episode = -1
+            episode_name = -1
+            if len(re.findall(r'- (\d+)x(\d+) (- (.*?)\.)',file_name)): # How I Met Your Mother - 6x08 - Natural History.1080p.HDTV.1080p x265.en.mp4
+                temp = re.findall(r'- (\d+)x(\d+) (- (.*?)\.)',file_name)[0]
+                season=temp[0]
+                episode=temp[1]
+                episode_name=temp[-1]
+            if len(re.findall(r'- (\d+)x(\d+)-(\d+) (- (.*?) \(\d+\))',file_name)): # How I Met Your Mother - 7x23-24 - The Magician's Code (1).HDTV.LOL.en.srt
+                temp = re.findall(r'- (\d+)x(\d+)-(\d+) (- (.*?) \(\d+\))',file_name)[0]
+                season=temp[0]
+                episode=temp[1]
+                episode_name=temp[-1]
+            if len(re.findall(r'- (\d+)x(\d+)-(\d+) (- (.*?)\.)',file_name)): # How I Met Your Mother - 9x01-02 - The Locket.HDTV.en.mp4
+                temp = re.findall(r'- (\d+)x(\d+)-(\d+) (- (.*?)\.)',file_name)[0]
+                season=temp[0]
+                episode=temp[1]
+                episode_name=temp[-1]
+            name = '{} {} {} {}'.format(series_name,format(int(season),season_padding),format(int(episode),episode_padding),episode_name)
+            if re.search(r'mp4$',file_name):
+                name = '{}.mp4'.format(name)
+            elif re.search(r'srt$',file_name):
+                name = '{}.srt'.format(name)
+                pass
+            else:
+                pass
+            os.rename('{}/{}'.format(folder_name,file_name),'{}/{}'.format(folder_name,name))
     pass
