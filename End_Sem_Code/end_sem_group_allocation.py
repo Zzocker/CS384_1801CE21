@@ -26,7 +26,30 @@ def group_allocation(filename, number_of_groups):
             'BRANCHCODE' :  branch.upper(),
             'STRENGTH' : stu_strength[branch]
     })
-
+    ###################################################
+    # Part C : separating students and placing them in their respective branch's csv file (eg CS.csv) 
+    for branch in students:
+        branch_writter = csv.DictWriter(open("{}.csv".format(branch.upper()),"w"),["Roll","Name","Email"])
+        branch_writter.writeheader()
+        branch_writter.writerows(students[branch])
+    ###################################################
+    # Part D : Distributing students among groups (in-memory)
+    allocation_dict = dict() # (branch : array of number student from this branch pressent each groups)
+    for branch in sorted_stu:
+        allocation_dict.setdefault(branch,[0] * number_of_groups) # init; 0 student in each group
+    for branch in allocation_dict:
+        each = stu_strength[branch]//number_of_groups
+        stu_strength[branch]-=each*number_of_groups
+        for i in range(number_of_groups):
+            allocation_dict[branch][i]+=each # distributing floor(num_in_branch_stu/num_of_group) students in each groups
+    current_group = 0 
+    # distributing remaining students
+    for branch in allocation_dict:
+        while stu_strength[branch]>0:
+            allocation_dict[branch][current_group]+=1
+            stu_strength[branch]-=1
+            current_group+=1
+            current_group%=number_of_groups
 filename = "Btech_2020_master_data.csv"
 branch_strength_filename = "branch_strength.csv"
 number_of_groups = 12 
