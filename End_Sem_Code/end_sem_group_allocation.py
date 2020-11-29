@@ -1,10 +1,19 @@
 import re
 import csv
+import os
+
+def clean_up(f_name):
+    for filename in os.listdir("."):
+        if filename.endswith(".csv") and (filename!=f_name):
+            os.remove(filename)
+    pass
 
 def group_allocation(filename, number_of_groups):
+    clean_up(filename)
     ###################################################
     # Part A : reading Btech_2020_master_data.csv file and storing students inside dict
     # students (dict) with key as branch and values as array of students
+    branch_strength_filename = "branch_strength.csv"
     in_file = open(filename,'r')
     branch_strength_writer = csv.DictWriter(open(branch_strength_filename,"w"),[ 'BRANCHCODE', 'STRENGTH']) 
     branch_strength_writer.writeheader()
@@ -52,7 +61,7 @@ def group_allocation(filename, number_of_groups):
             current_group%=number_of_groups
     ###################################################
     # Part E : creating group csv files and filling them up with students
-    branch_current_index = {key:value for key,value in zip(sorted_stu,[0]*number_of_groups)} # (branch : current index for group distributi)
+    branch_current_index = {key:value for key,value in zip(sorted_stu,[0]*len(sorted_stu))} # (branch : current index for group distributi)
     stats_grouping_writer = csv.DictWriter(open("stats_grouping.csv","w"),["group","total"]+sorted_stu) # stats_grouping_writer for writing stats into the csv file
     stats_grouping_writer.writeheader()
     for group in range(number_of_groups):
@@ -69,6 +78,5 @@ def group_allocation(filename, number_of_groups):
         stats_grouping_writer.writerow(group_row)
 
 filename = "Btech_2020_master_data.csv"
-branch_strength_filename = "branch_strength.csv"
-number_of_groups = 12 
+number_of_groups = int(input())
 group_allocation(filename, number_of_groups)
