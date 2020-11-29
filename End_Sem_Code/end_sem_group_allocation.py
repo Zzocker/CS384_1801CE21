@@ -29,9 +29,9 @@ def group_allocation(filename, number_of_groups):
     ###################################################
     # Part C : separating students and placing them in their respective branch's csv file (eg CS.csv) 
     for branch in students:
-        branch_writter = csv.DictWriter(open("{}.csv".format(branch.upper()),"w"),["Roll","Name","Email"])
-        branch_writter.writeheader()
-        branch_writter.writerows(students[branch])
+        branch_writer = csv.DictWriter(open("{}.csv".format(branch.upper()),"w"),["Roll","Name","Email"])
+        branch_writer.writeheader()
+        branch_writer.writerows(students[branch])
     ###################################################
     # Part D : Distributing students among groups (in-memory)
     allocation_dict = dict() # (branch : array of number student from this branch pressent each groups)
@@ -50,6 +50,24 @@ def group_allocation(filename, number_of_groups):
             stu_strength[branch]-=1
             current_group+=1
             current_group%=number_of_groups
+    ###################################################
+    # Part E : creating group csv files and filling them up with students
+    branch_current_index = {key:value for key,value in zip(sorted_stu,[0]*number_of_groups)} # (branch : current index for group distributi)
+    stats_grouping_writer = csv.DictWriter(open("stats_grouping.csv","w"),["group","total"]+sorted_stu) # stats_grouping_writer for writing stats into the csv file
+    stats_grouping_writer.writeheader()
+    for group in range(number_of_groups):
+        group_writer = csv.DictWriter(open('Group_G{0:02d}.csv'.format(group+1),"w"),["Roll","Name","Email"])
+        group_row=dict()
+        group_row["group"] = 'Group_G{0:02d}.csv'.format(group+1)
+        group_row["total"] = 0
+        group_writer.writeheader()
+        for branch in allocation_dict:
+            group_writer.writerows(students[branch][branch_current_index[branch]:branch_current_index[branch]+allocation_dict[branch][group]])
+            branch_current_index[branch]+=allocation_dict[branch][group]
+            group_row[branch.upper()]=allocation_dict[branch][group]
+            group_row["total"]+=allocation_dict[branch][group]
+        stats_grouping_writer.writerow(group_row)
+
 filename = "Btech_2020_master_data.csv"
 branch_strength_filename = "branch_strength.csv"
 number_of_groups = 12 
