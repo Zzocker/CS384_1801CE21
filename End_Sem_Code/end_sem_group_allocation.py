@@ -78,5 +78,5 @@ def group_allocation(filename, number_of_groups):
         stats_grouping_writer.writerow(group_row)
 
 filename = "Btech_2020_master_data.csv"
-number_of_groups = int(input())
+number_of_groups = 12
 group_allocation(filename, number_of_groups)
