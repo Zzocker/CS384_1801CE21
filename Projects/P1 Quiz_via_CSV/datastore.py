@@ -51,3 +51,24 @@ class user_datastore:
             "msg" : msg
         }
     
+class quiz_datastore:
+    def __init__(self,filename):
+        self.filename = "quiz_wise_questions/{}".format(filename)
+    def get_quiz(self):
+        in_file = open(self.filename,"r")
+        reader = csv.DictReader(in_file)
+        q_time = int(reader.fieldnames[-1].split("time=")[1][:-1])
+        questions = dict()
+        for row in reader:
+            row.pop(reader.fieldnames[-1])
+            options = [row.get("option1"),row.get("option2"),row.get("option3"),row.get("option4")]
+            row.pop("option1")
+            row.pop("option2")
+            row.pop("option3")
+            row.pop("option4")
+            row["options"] = options
+            questions[row.get("ques_no")] = row
+        return {
+            "questions" : questions,
+            "q_time" : q_time*60
+        }
