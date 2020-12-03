@@ -1,6 +1,9 @@
 from tkinter import *
 import datastore
 from tkinter import messagebox
+import os
+import queue
+import threading
 
 def show_password(var,entry):
     if var.get():
@@ -11,6 +14,7 @@ def show_password(var,entry):
 class login_system:
     def __init__(self,root):
         self.user_ds = datastore.user_datastore()
+        self.root = root
         login_frame = Frame(root, height=1080, width=1920, bg="azure", relief="ridge")
         login_frame.pack()
         ##################################################################################################
@@ -31,13 +35,15 @@ class login_system:
                            font=("Helvetica", 10, "bold italic"),command=self.__login).place(x=620, y=360)
         Button(login_frame, text="Register", width=20, height=3, fg="royalblue4", bg="lavender",
                             font=("Helvetica", 10, "bold italic"),command=register_system).place(x=420, y=360)
+        self.login_frame = login_frame
     def __login(self):
         res  = self.user_ds.check_cred(self.e_roll.get(),self.e_pass.get())
         if res.get("success") == False:
             messagebox.showerror("Error",res.get("msg"))
         else:
             user = self.user_ds.get_user(self.e_roll.get()).get("data")
-            print(user)
+            self.login_frame.destroy()
+            quiz(root,user)
         pass
 
 class register_system:
@@ -87,6 +93,54 @@ class register_system:
         else:
             messagebox.showerror("Error","{} already exists".format(self.e_roll.get()))
 
+class quiz:
+    def __init__(self,root,user):
+        self.user = user
+        self.root = root
+        f = Frame(root, height=1080, width=1920, bg="azure", relief="ridge")
+        f.pack()
+        Label(f, text="Which Quiz You Want Give?".format(user[2]), fg="red" ,bg="azure", font=("Helvetica", 30, "bold italic underline")).place(
+            x=420, y=175)
+        ht =  220
+        selected_quiz=StringVar(f)
+        for filename in os.listdir("./quiz_wise_questions"):
+            if filename.endswith(".csv"):
+                Radiobutton(f,text=filename[:-4],variable=selected_quiz,value=filename,bg='azure',
+                              font=("Times New Roman", 20)).place(x=520,y=ht)
+                ht+=40
+        Button(f,text="OK",width=20, height=3, fg="royalblue4", bg="lavender",
+                        font=("Helvetica", 10, "bold italic"),command=lambda: [f.destroy(),self.__start_quiz(selected_quiz.get())]).place(x=520,y=ht)
+    def __start_quiz(self,filename):
+        self.q_ds = datastore.quiz_datastore(filename).get_quiz()
+        #################################################
+        info_frame = Frame(self.root, height=340, width=1920, bg="azure", relief="ridge",bd=20)
+        info_frame.place(x=0,y=0)
+        Label(info_frame, text="Time Remaining",bg="azure", font=("Helvetica", 48, "bold")).place(
+            x=10, y=10)
+        self.timer_lb = Label(info_frame,text="",font=("Helvetica",48),fg="green",bg="azure")
+        self.timer_lb.place(x=600,y=10)
+        Label(info_frame, text="Name",bg="azure", font=("Helvetica", 48, "bold")).place(
+            x=10, y=70)
+        Label(info_frame,text=": "+self.user[2],font=("Helvetica",48),fg="green",bg="azure").place(x=600,y=70)
+        Label(info_frame, text="Roll Number",bg="azure", font=("Helvetica", 48, "bold")).place(
+            x=10, y=130)
+        Label(info_frame,text=": "+self.user[0],font=("Helvetica",48),fg="green",bg="azure").place(x=600,y=130)
+        Label(info_frame,text="*Unattempted Questions(Ctrl+Alt+U);Goto Question(Ctrl+Alt+G);\nFinal Submit(Ctrl+Alt+F);Export Database into CSV(Ctrl+Alt+E)",font=("Helvetica",28),fg="red",bg="azure").place(x=10,y=200)
+        ################################################# Timer
+        self.max_timer = self.q_ds.get("q_time")
+        self.channel = queue.Queue()
+        thread = threading.Thread(target=self.timer)
+        thread.start()
+        #################################################
+    def timer(self):
+            min,sec  = divmod(self.max_timer,60)
+            self.timer_lb["text"] = ': {:02d}:{:02d}'.format(min, sec)
+            if self.max_timer == 0:
+                self.channel.put("Stop")
+                print("time out")
+                return
+            self.timer_lb.after(1000,self.timer)
+            self.max_timer-=1
 root = Tk()
 root.geometry("1350x750")
 root.title("Quiz Portal")
