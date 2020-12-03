@@ -72,3 +72,63 @@ class quiz_datastore:
             "questions" : questions,
             "q_time" : q_time*60
         }
+
+class users_marks_datastore:
+    def __init__(self):
+        self.conn = sqlite3.connect("project1_quiz_cs384")
+        self.conn.execute('''CREATE TABLE IF NOT EXISTS project1_marks(
+                roll VARCHAR(10),
+                quiz_num VARCHAR(45),
+                total_marks INT
+        )''')
+        self.conn.commit()
+    def get_mark(self,roll,quiz_num):
+        data = self.conn.execute(
+            "SELECT * FROM project1_marks WHERE roll=:roll and quiz_num=:quiz_num",
+            {"roll":roll,"quiz_num":quiz_num}
+        ).fetchone()
+        return data
+    def update_mark(self,roll,quiz_num,marks):
+        if self.get_mark(roll,quiz_num) == None:
+                    self.conn.execute('''INSERT INTO project1_marks(roll,quiz_num,total_marks) VALUES(?,?,?)''',
+                    [
+                        (roll),
+                        (quiz_num),
+                        (marks)
+                    ])
+        else:
+                    self.conn.execute(
+                        '''UPDATE project1_marks SET total_marks=:total_marks WHERE roll=:roll and quiz_num=:quiz_num''',
+                        {"total_marks":marks,"roll":roll,"quiz_num":quiz_num}
+                    )
+        self.conn.commit()
+    def export_csv(self):
+        for q_num in self.__get_all_quiz():
+            print(q_num)
+            file_name = "quiz{}.csv".format(int(re.findall(r"\d+",q_num)[0]))
+            f = open(file_name,"w")
+            writer = csv.DictWriter(f,fieldnames=["Roll No","Quiz No","Total Marks"])
+            writer.writeheader()
+            for d in self.conn.execute("SELECT * FROM project1_marks WHERE quiz_num=:quiz_num",{"quiz_num":q_num}).fetchall():
+                writer.writerow({
+                    "Roll No": d[0],
+                    "Quiz No" : d[1],
+                    "Total Marks" : d[2]
+                })
+    def __is_quiz_exists(self,quiz_num):
+        return self.conn.execute(
+            "SELECT quiz_num FROM project1_marks WHERE quiz_num=:quiz_num",
+            {"quiz_num":quiz_num}
+        ).fetchone() != None
+    def __get_all_quiz(self):
+        ok = True
+        out = []
+        i = 1
+        while ok:
+            q_num = "q{}.csv".format(i)
+            if self.__is_quiz_exists(q_num):
+                out.append(q_num)
+                i+=1
+            else:
+                ok = False
+        return out 
