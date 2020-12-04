@@ -112,26 +112,74 @@ class quiz:
                         font=("Helvetica", 10, "bold italic"),command=lambda: [f.destroy(),self.__start_quiz(selected_quiz.get())]).place(x=520,y=ht)
     def __start_quiz(self,filename):
         self.q_ds = datastore.quiz_datastore(filename).get_quiz()
+        if self.q_ds.get("valid")== False:
+            messagebox.showerror("Error","Empty Quiz")
+            quiz(self.root,self.user)
+        else:
         #################################################
-        info_frame = Frame(self.root, height=340, width=1920, bg="azure", relief="ridge",bd=20)
-        info_frame.place(x=0,y=0)
-        Label(info_frame, text="Time Remaining",bg="azure", font=("Helvetica", 48, "bold")).place(
-            x=10, y=10)
-        self.timer_lb = Label(info_frame,text="",font=("Helvetica",48),fg="green",bg="azure")
-        self.timer_lb.place(x=600,y=10)
-        Label(info_frame, text="Name",bg="azure", font=("Helvetica", 48, "bold")).place(
-            x=10, y=70)
-        Label(info_frame,text=": "+self.user[2],font=("Helvetica",48),fg="green",bg="azure").place(x=600,y=70)
-        Label(info_frame, text="Roll Number",bg="azure", font=("Helvetica", 48, "bold")).place(
-            x=10, y=130)
-        Label(info_frame,text=": "+self.user[0],font=("Helvetica",48),fg="green",bg="azure").place(x=600,y=130)
-        Label(info_frame,text="*Unattempted Questions(Ctrl+Alt+U);Goto Question(Ctrl+Alt+G);\nFinal Submit(Ctrl+Alt+F);Export Database into CSV(Ctrl+Alt+E)",font=("Helvetica",28),fg="red",bg="azure").place(x=10,y=200)
-        ################################################# Timer
-        self.max_timer = self.q_ds.get("q_time")
-        self.channel = queue.Queue()
-        thread = threading.Thread(target=self.timer)
-        thread.start()
-        #################################################
+            info_frame = Frame(self.root, height=340, width=1920, bg="azure", relief="ridge",bd=20)
+            info_frame.place(x=0,y=0)
+            Label(info_frame, text="Time Remaining",bg="azure", font=("Helvetica", 48, "bold")).place(
+                x=10, y=10)
+            self.timer_lb = Label(info_frame,text="",font=("Helvetica",48),fg="green",bg="azure")
+            self.timer_lb.place(x=600,y=10)
+            Label(info_frame, text="Name",bg="azure", font=("Helvetica", 48, "bold")).place(
+                x=10, y=70)
+            Label(info_frame,text=": "+self.user[2],font=("Helvetica",48),fg="green",bg="azure").place(x=600,y=70)
+            Label(info_frame, text="Roll Number",bg="azure", font=("Helvetica", 48, "bold")).place(
+                x=10, y=130)
+            Label(info_frame,text=": "+self.user[0],font=("Helvetica",48),fg="green",bg="azure").place(x=600,y=130)
+            Label(info_frame,text="*Unattempted Questions(Ctrl+Alt+U);Goto Question(Ctrl+Alt+G);\nFinal Submit(Ctrl+Alt+F);Export Database into CSV(Ctrl+Alt+E)",font=("Helvetica",28),fg="red",bg="azure").place(x=10,y=200)
+            ################################################# Timer
+            self.max_timer = self.q_ds.get("q_time")
+            self.channel = queue.Queue()
+            thread = threading.Thread(target=self.timer)
+            thread.start()
+            #################################################
+            self.response = {key:value for key,value in zip(self.q_ds.get("questions").keys(),[-1]*len(self.q_ds.get("questions")))}
+            self.ques_frame = Frame(self.root,height=400, width=1920, bg="azure", relief="ridge",bd=20)
+            self.ques_frame.place(x=0,y=350)
+            self.q_num = 1
+            self.ques = self.create_q(self.q_num)
+            self.opts = self.create_options()
+            self.display_q(self.q_num)
+            self.next_btn = Button(self.ques_frame, text = "Save & Next",width=20, height=3, fg="royalblue4", bg="lavender",
+                        font=("Helvetica", 10, "bold italic"),command = self.next)
+            self.next_btn.place(x=300,y=250)
+    def create_options(self):
+        b_val = 0
+        b = []
+        self.opt_selected = IntVar()
+        self.opt_selected.set(-1)
+        ht = 50
+        while b_val < 4:
+            btn = Radiobutton(self.ques_frame, text="", variable=self.opt_selected, value=b_val + 1,bg="azure",font=("Helvetica", 20, "bold"))
+            b.append(btn)
+            btn.place(x=10,y=ht)
+            ht+=50
+            b_val = b_val + 1
+        self.if_correct_label = Label(self.ques_frame,text="",bg="azure",font=("Helvetica", 20, "bold"))
+        self.ng_marking = Label(self.ques_frame,text="",bg="azure",font=("Helvetica", 20, "bold"))
+        self.is_com = Label(self.ques_frame,text="",bg="azure",font=("Helvetica", 20, "bold"))
+        self.if_correct_label.place(x=600,y=50)
+        self.ng_marking.place(x=600,y=100)
+        self.is_com.place(x=600,y=150)
+        return b
+    def create_q(self,ques_num):
+        q = self.q_ds.get("questions").get("{}".format(ques_num)).get("question")
+        qLabel = Label(self.ques_frame, text=q,bg="azure",font=("Helvetica", 20, "bold"))
+        qLabel.place(x=10,y=10)
+        return qLabel
+    def display_q(self, ques_num):
+        b_val = 0
+        q = self.q_ds.get("questions").get("{}".format(ques_num))
+        self.ques['text'] = "Q"+str(ques_num) + ". " + q.get("question")
+        for op in q.get("options"):
+            self.opts[b_val]['text'] = op
+            b_val = b_val + 1
+        self.if_correct_label["text"]="Credits if Correct Option: {}".format(q.get("marks_correct_ans"))
+        self.ng_marking["text"] = "Negative Marking: {}".format(q.get("marks_wrong_ans"))
+        self.is_com["text"] = "Is compulsory: {}".format(q.get("compulsory"))
     def timer(self):
             min,sec  = divmod(self.max_timer,60)
             self.timer_lb["text"] = ': {:02d}:{:02d}'.format(min, sec)
@@ -141,6 +189,14 @@ class quiz:
                 return
             self.timer_lb.after(1000,self.timer)
             self.max_timer-=1
+    def next(self):
+        if self.q_num >= len(self.q_ds.get("questions")):
+            messagebox.showwarning("Warning", "You are at the end.Press Submit to proceed")
+        else:
+            self.response["{}".format(self.q_num)]=self.opt_selected.get()
+            self.q_num+=1
+            self.opt_selected.set(self.response["{}".format(self.q_num)])
+            self.display_q(self.q_num)
 root = Tk()
 root.geometry("1350x750")
 root.title("Quiz Portal")

@@ -57,6 +57,10 @@ class quiz_datastore:
     def get_quiz(self):
         in_file = open(self.filename,"r")
         reader = csv.DictReader(in_file)
+        if reader.fieldnames == None:
+            return {
+                "valid" : False
+            }
         q_time = int(reader.fieldnames[-1].split("time=")[1][:-1])
         questions = dict()
         for row in reader:
@@ -69,6 +73,7 @@ class quiz_datastore:
             row["options"] = options
             questions[row.get("ques_no")] = row
         return {
+            "valid" : True,
             "questions" : questions,
             "q_time" : q_time*60
         }
