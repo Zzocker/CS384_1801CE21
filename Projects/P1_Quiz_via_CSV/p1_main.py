@@ -237,7 +237,7 @@ class quiz:
         Label(result_frame, text = "Total Wrong Questions: ",bg="azure", font=("Helvetica", 40, "bold")).grid(row = 4, sticky = W)
         Label(result_frame, text = result.get("total_wrong"),bg="azure", font=("Helvetica", 40, "bold")).grid(row = 4, column = 1)
         Label(result_frame, text = "Total Marks Obtained: ",bg="azure", font=("Helvetica", 40, "bold")).grid(row = 5, sticky = W)
-        Label(result_frame, text = result.get("total_marks"),bg="azure", font=("Helvetica", 40, "bold")).grid(row = 5, column = 1)
+        Label(result_frame, text = "{}/{}".format(result.get("total_marks"),result.get("total_quiz_marks")),bg="azure", font=("Helvetica", 40, "bold")).grid(row = 5, column = 1)
         Button(result_frame, text = "Ok",width=20, height=3, fg="royalblue4", bg="lavender",
                         font=("Helvetica", 10, "bold"),command = lambda:self.root.destroy()).grid(row=6,column=1)
     def check_quiz(self):
