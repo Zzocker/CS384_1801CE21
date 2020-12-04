@@ -205,6 +205,7 @@ class quiz:
                 self.channel.put("Stop")
                 print("time out")
                 self.end_quiz()
+                self.result_lb["text"]="Time Out! Here The Result"
                 return
             self.timer_lb.after(1000,self.timer)
             self.max_timer-=1
@@ -225,7 +226,8 @@ class quiz:
         result = self.check_quiz()
         result_frame = Frame(self.root, height=1080, width=1920, bg="azure", relief="ridge",bd=20)
         result_frame.place(x=0,y=0)
-        Label(result_frame, text = "Quiz Submitted!\nHere The Result",bg="azure", font=("Helvetica", 48, "bold")).place(x=10,y=10)
+        self.result_lb = Label(result_frame, text = "Quiz Submitted! Here The Result",bg="azure",fg="red", font=("Helvetica", 48, "bold"))
+        self.result_lb.grid(row=0,sticky=W)
         Label(result_frame, text = "Total Quiz Questions: ",bg="azure", font=("Helvetica", 40, "bold")).grid(row = 1, sticky = W)
         Label(result_frame, text = result.get("total_ques"),bg="azure", font=("Helvetica", 40, "bold")).grid(row = 1, column = 1)
         Label(result_frame, text = "Total Quiz Questions Attempted: ",bg="azure", font=("Helvetica", 40, "bold")).grid(row = 2, sticky = W)
