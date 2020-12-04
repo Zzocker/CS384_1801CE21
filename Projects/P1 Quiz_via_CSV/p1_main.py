@@ -4,6 +4,7 @@ from tkinter import messagebox
 import os
 import queue
 import threading
+import csv
 
 def show_password(var,entry):
     if var.get():
@@ -95,6 +96,7 @@ class register_system:
 
 class quiz:
     def __init__(self,root,user):
+        self.roll = user[0]
         self.user = user
         self.root = root
         f = Frame(root, height=1080, width=1920, bg="azure", relief="ridge")
@@ -116,6 +118,8 @@ class quiz:
             messagebox.showerror("Error","Empty Quiz")
             quiz(self.root,self.user)
         else:
+            self.filename = filename
+            self.user_mark_ds = datastore.users_marks_datastore()
         #################################################
             info_frame = Frame(self.root, height=340, width=1920, bg="azure", relief="ridge",bd=20)
             info_frame.place(x=0,y=0)
@@ -130,6 +134,7 @@ class quiz:
                 x=10, y=130)
             Label(info_frame,text=": "+self.user[0],font=("Helvetica",48),fg="green",bg="azure").place(x=600,y=130)
             Label(info_frame,text="*Unattempted Questions(Ctrl+Alt+U);Goto Question(Ctrl+Alt+G);\nFinal Submit(Ctrl+Alt+F);Export Database into CSV(Ctrl+Alt+E)",font=("Helvetica",28),fg="red",bg="azure").place(x=10,y=200)
+            self.info_frame = info_frame
             ################################################# Timer
             self.max_timer = self.q_ds.get("q_time")
             self.channel = queue.Queue()
@@ -146,6 +151,19 @@ class quiz:
             self.next_btn = Button(self.ques_frame, text = "Save & Next",width=20, height=3, fg="royalblue4", bg="lavender",
                         font=("Helvetica", 10, "bold italic"),command = self.next)
             self.next_btn.place(x=300,y=250)
+            ##################################################
+            def goto_event(event):
+                self.__go_to()
+            self.root.bind("<Control_L><Alt_L><G>",goto_event)
+            def submit_event(event):
+                self.submit()
+            self.root.bind("<Control_L><Alt_L><F>",submit_event)
+            def unat_event(event):
+                self.__get_unattem()
+            self.root.bind("<Control_L><Alt_L><U>",unat_event)
+            def export_event(event):
+                self.__export_csv()
+            self.root.bind("<Control_L><Alt_L><E>",export_event)
     def create_options(self):
         b_val = 0
         b = []
@@ -186,17 +204,135 @@ class quiz:
             if self.max_timer == 0:
                 self.channel.put("Stop")
                 print("time out")
+                self.end_quiz()
                 return
             self.timer_lb.after(1000,self.timer)
             self.max_timer-=1
     def next(self):
         if self.q_num >= len(self.q_ds.get("questions")):
-            messagebox.showwarning("Warning", "You are at the end.Press Submit to proceed")
+            messagebox.showwarning("Warning", "You are at the End.\nPress Ctrl+Alt+F to proceed")
         else:
             self.response["{}".format(self.q_num)]=self.opt_selected.get()
             self.q_num+=1
             self.opt_selected.set(self.response["{}".format(self.q_num)])
             self.display_q(self.q_num)
+    def submit(self):
+        self.response["{}".format(self.q_num)]=self.opt_selected.get()
+        self.end_quiz()
+    def end_quiz(self):
+        self.ques_frame.destroy()
+        self.info_frame.destroy()
+        result = self.check_quiz()
+        result_frame = Frame(self.root, height=1080, width=1920, bg="azure", relief="ridge",bd=20)
+        result_frame.place(x=0,y=0)
+        Label(result_frame, text = "Quiz Submitted!\nHere The Result",bg="azure", font=("Helvetica", 48, "bold")).place(x=10,y=10)
+        Label(result_frame, text = "Total Quiz Questions: ",bg="azure", font=("Helvetica", 40, "bold")).grid(row = 1, sticky = W)
+        Label(result_frame, text = result.get("total_ques"),bg="azure", font=("Helvetica", 40, "bold")).grid(row = 1, column = 1)
+        Label(result_frame, text = "Total Quiz Questions Attempted: ",bg="azure", font=("Helvetica", 40, "bold")).grid(row = 2, sticky = W)
+        Label(result_frame, text = result.get("total_attemp"),bg="azure", font=("Helvetica", 40, "bold")).grid(row = 2, column = 1)
+        Label(result_frame, text = "Total Correct Questions: ",bg="azure", font=("Helvetica", 40, "bold")).grid(row = 3, sticky = W)
+        Label(result_frame, text = result.get("total_Correct"),bg="azure", font=("Helvetica", 40, "bold")).grid(row = 3, column = 1)
+        Label(result_frame, text = "Total Wrong Questions: ",bg="azure", font=("Helvetica", 40, "bold")).grid(row = 4, sticky = W)
+        Label(result_frame, text = result.get("total_wrong"),bg="azure", font=("Helvetica", 40, "bold")).grid(row = 4, column = 1)
+        Label(result_frame, text = "Total Marks Obtained: ",bg="azure", font=("Helvetica", 40, "bold")).grid(row = 5, sticky = W)
+        Label(result_frame, text = result.get("total_marks"),bg="azure", font=("Helvetica", 40, "bold")).grid(row = 5, column = 1)
+        Button(result_frame, text = "Ok",width=20, height=3, fg="royalblue4", bg="lavender",
+                        font=("Helvetica", 10, "bold"),command = lambda:self.root.destroy()).grid(row=6,column=1)
+    def check_quiz(self):
+        total_marks = 0
+        total_quiz_marks = 0
+        total_unattempted = 0
+        total_cor_ques = 0
+        total_wrong_ques = 0
+        out_fname = "individual_responses/{}_{}.csv".format(self.filename.split(".csv")[0],self.roll)
+        writer = csv.DictWriter(open(out_fname,"w"),fieldnames=["ques_no","question","option1","option2","option3","option4","correct_option","marks_correct_ans","marks_wrong_ans","compulsory","marked_choice","Total","Legend"])
+        writer.writeheader()
+        for q in self.q_ds.get("questions").values():
+            total = 0
+            resp = self.response[q.get("ques_no")]
+            q["marked_choice"]=resp
+            if resp == -1:
+                q["marked_choice"] = ""
+                q["Legend"] = "Unattempted"
+                total_unattempted+=1
+            if resp == int(q.get("correct_option")):
+                total=int(q.get("marks_correct_ans"))
+                q["Legend"] = "Correct Choice"
+                total_cor_ques+=1
+            elif resp == -1 and q.get("compulsory")=="y":
+                total=int(q.get("marks_wrong_ans"))
+                q["Legend"] = "Wrong Choice"
+                total_wrong_ques+=1
+            elif resp != -1 and resp != int(q.get("correct_option")):
+                total=int(q.get("marks_wrong_ans"))
+                q["Legend"] = "Wrong Choice"
+                total_wrong_ques+=1
+            q["Total"]=total
+            q["option1"] = q.get("options")[0]
+            q["option2"] = q.get("options")[1]
+            q["option3"] = q.get("options")[2]
+            q["option4"] = q.get("options")[3]
+            q.pop("options")
+            writer.writerow(q)
+            total_marks+=total
+            total_quiz_marks+=int(q.get("marks_correct_ans"))
+        self.user_mark_ds.update_mark(self.roll,self.filename,total_marks)
+        temp_dct = {key:value for key,value in zip(writer.fieldnames,[""]*len(writer.fieldnames))}
+        temp_dct["Total"] = total_marks
+        temp_dct["Legend"] = "Marks Obtained"
+        writer.writerow(temp_dct)
+        temp_dct["Total"] = total_quiz_marks
+        temp_dct["Legend"] = "Total Quiz Marks"
+        writer.writerow(temp_dct)
+        return {
+            "total_ques"  : len(self.q_ds.get("questions")),
+            "total_attemp" : len(self.q_ds.get("questions"))-total_unattempted,
+            "total_Correct" : total_cor_ques,
+            "total_wrong" : total_wrong_ques,
+            "total_marks" : total_marks,
+            "total_quiz_marks" : total_quiz_marks
+        }
+
+    def __go_to(self):
+        temp_screen = Tk()
+        temp_screen.title("Go To")
+        f = Frame(temp_screen)
+        f.pack()
+        go_to_var = StringVar(f)
+        go_to_var.set("")
+        Label(f,text = 'Go To').grid(row=0,column=0)
+        Entry(f,textvariable = go_to_var,bd = 5).grid(row=0,column=1)
+        def jump():
+            new_f = Frame(temp_screen)
+            new_f.pack()
+            if go_to_var.get() != "":
+                in_q = go_to_var.get()
+                go_to_var.set("")
+                if in_q in [i for i in self.response.keys()]:
+                    q = self.q_ds.get("questions").get("{}".format(in_q))
+                    Label(f,text = "Q{}. {}".format(q.get("ques_no"),q.get("question"))).grid(sticky = W)
+                    o_selected = IntVar(f)
+                    o_selected.set(-1)
+                    for i in range(4):
+                        Radiobutton(f, text=q.get("options")[i], variable=o_selected, value=i+1).grid(sticky = W)
+                def ano_belo():
+                    self.response[q.get("ques_no")]=o_selected.get()
+                    if q.get("ques_no") == str(self.q_num):
+                        self.opt_selected.set(o_selected.get())
+                Button(f,text="Save",command= ano_belo).grid(sticky = W)
+        Button(f,text="Jump",command = jump).grid(row=1,column=0)
+        Button(f,text="Close X",command=lambda :[temp_screen.destroy()]).grid(row=1,column=1)
+    def __export_csv(self):
+        self.user_mark_ds.export_csv()
+        print("csv files exported")
+    def __get_unattem(self):
+        temp_screen = Tk()
+        temp_screen.geometry("300x100")
+        temp_screen.title("Unattempted Questions")
+        for q in self.response:
+            if self.response[q]==-1:
+                Label(temp_screen,text="Q{}".format(q)).pack()
+        Button(temp_screen,text="OK",command=lambda :  [temp_screen.destroy()]).pack()
 root = Tk()
 root.geometry("1350x750")
 root.title("Quiz Portal")
